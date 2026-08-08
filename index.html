@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tāḷa — Carnatic hand metronome</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header>
+      <div class="brand"><span class="brand-mark">◒</span><span>TĀḶA</span></div>
+      <p class="tagline">Carnatic hand metronome</p>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">NOW KEEPING</div>
+      <h1 id="talam-name">Ādi Tāḷa</h1>
+      <p id="talam-detail" class="structure">Laghu (4) + Drutam (2) + Drutam (2) · 8 beats</p>
+    </section>
+
+    <!-- Stage: the two hands (left) + the count readout (right).
+         They live in separate columns so the hand never covers the count. -->
+    <section class="stage">
+      <div class="hand-stage" aria-label="Hands keeping tala">
+        <svg class="hands" viewBox="0 20 300 320" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0"   stop-color="#f2c9a8"/>
+              <stop offset="0.55" stop-color="#e3a883"/>
+              <stop offset="1"   stop-color="#cf8a66"/>
+            </linearGradient>
+            <linearGradient id="skinBase" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0"   stop-color="#e7b491"/>
+              <stop offset="1"   stop-color="#c67f5c"/>
+            </linearGradient>
+            <linearGradient id="skinHot" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffd98a"/>
+              <stop offset="1" stop-color="#f0a94d"/>
+            </linearGradient>
+            <radialGradient id="flash" cx="50%" cy="50%" r="50%">
+              <stop offset="0" stop-color="#ffe6a1" stop-opacity="0.95"/>
+              <stop offset="0.6" stop-color="#f6c25c" stop-opacity="0.35"/>
+              <stop offset="1" stop-color="#f6c25c" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+
+          <!-- impact flash shown on a clap / count strike -->
+          <circle class="flash" cx="150" cy="286" r="62" fill="url(#flash)"/>
+
+          <!-- ACTIVE HAND · right hand, does the kriyā (thattu / veechu / counts) -->
+          <g class="active-hand" id="active-hand">
+            <rect class="wrist" x="112" y="220" width="66" height="70" rx="20"/>
+            <path class="palm" d="M92,150 Q84,150 84,170 L84,206 Q84,236 118,240 L172,240
+                     Q206,236 206,206 L206,166 Q206,150 197,150 Z"/>
+            <!-- fingers: index, middle, ring, little (left→right on a palm-facing right hand) -->
+            <rect class="finger f-index"  x="96"  y="48" width="23" height="106" rx="11"/>
+            <rect class="finger f-middle" x="123" y="34" width="24" height="120" rx="12"/>
+            <rect class="finger f-ring"   x="150" y="50" width="23" height="104" rx="11"/>
+            <rect class="finger f-little" x="177" y="74" width="20" height="82"  rx="10"/>
+            <!-- thumb: a path attached to the palm's lower‑left, pointing down -->
+            <path class="thumb" d="M97,182 Q72,184 62,210 Q56,228 70,239 Q86,248 97,228 Z"/>
+          </g>
+
+          <!-- veechu turn arc -->
+          <path class="turn-arc" d="M214,120 A64,64 0 0 1 250,196" fill="none"/>
+        </svg>
+        <div class="hand-caption">
+          <span class="hand-role active">the tāḷa hand</span>
+        </div>
+      </div>
+
+      <div class="count-readout" aria-live="polite">
+        <div class="anga-tag" id="anga-tag">Laghu</div>
+        <div class="gesture-icon" id="gesture-icon">✋</div>
+        <div class="gesture-name" id="gesture-name">Thattu</div>
+        <div class="gesture-sub" id="gesture-sub">palm strikes down</div>
+        <div class="beat-count"><strong id="beat-num">1</strong><span id="beat-total">/ 8</span></div>
+      </div>
+    </section>
+
+    <!-- Sequence strip · every beat, with a per-beat mute toggle -->
+    <section class="sequence-wrap" aria-label="Beat sequence">
+      <div class="sequence" id="sequence"></div>
+      <p class="seq-hint">Tap the <span class="mini-mute">🔊</span> under a beat to mute it · tap the number to jump there</p>
+    </section>
+
+    <section class="transport">
+      <button class="play" id="play" aria-label="Start"><span class="play-icon">▶</span><span id="play-label">Start</span></button>
+      <div class="bpm-readout"><input id="bpm-number" type="number" min="20" max="400" value="80" aria-label="BPM"><span>BPM</span></div>
+    </section>
+
+    <section class="tempo-control" aria-label="Tempo">
+      <div class="tempo-top"><span>20</span><label for="bpm">TEMPO</label><span>400</span></div>
+      <input id="bpm" type="range" min="20" max="400" value="80" />
+      <div class="tempo-presets" id="tempo-presets"></div>
+    </section>
+
+    <section class="sound-control" aria-label="Sound">
+      <div class="vol-row">
+        <label for="beat-vol">BEAT VOLUME</label>
+        <input id="beat-vol" type="range" min="0" max="100" value="85" />
+      </div>
+    </section>
+
+    <section class="tala-picker" aria-label="Choose a tala">
+      <p class="section-label">CHOOSE TĀḶA</p>
+      <div class="tala-grid" id="tala-grid"></div>
+    </section>
+
+    <p class="hint">Space to start / stop</p>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

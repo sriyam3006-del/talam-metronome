@@ -1,0 +1,151 @@
+:root{
+  --ink:#1d2430; --muted:#6e7580; --paper:#f8f5ee; --card:#fffdf8;
+  --sun:#efb34d; --rose:#d76757; --green:#3b897b; --line:#ded9cd;
+}
+*{ box-sizing:border-box; }
+body{
+  margin:0; min-height:100vh; color:var(--ink);
+  background:radial-gradient(circle at 50% 30%, #fffdf7 0 14%, var(--paper) 60%);
+  font-family:"Plus Jakarta Sans",system-ui,sans-serif;
+}
+.app-shell{ width:min(100%,760px); margin:auto; padding:24px 26px 40px; text-align:center; }
+
+/* header + hero */
+header{ display:flex; justify-content:space-between; align-items:center; font-size:11px; letter-spacing:2px; font-weight:700; }
+.brand{ display:flex; align-items:center; gap:8px; }
+.brand-mark{ font-size:24px; color:var(--rose); line-height:0; }
+.tagline{ color:var(--muted); margin:0; font-weight:600; letter-spacing:.6px; text-transform:uppercase; font-size:9px; }
+.hero{ margin:30px 0 6px; }
+.eyebrow,.section-label,.tempo-top label{ color:var(--rose); letter-spacing:2px; font-size:10px; font-weight:700; }
+.hero h1{ font-family:"Playfair Display",serif; font-weight:600; font-size:clamp(34px,7vw,50px); margin:6px 0 6px; letter-spacing:-1.2px; }
+.structure{ margin:0; font-family:"DM Mono",monospace; font-size:12px; color:var(--muted); }
+
+/* ---- STAGE: hands on the left, the count read‑out on the right ---- */
+.stage{
+  display:grid; grid-template-columns:1.05fr .95fr; align-items:center; gap:6px;
+  margin:14px 0 8px; min-height:300px;
+}
+.hand-stage{ position:relative; }
+.hands{ width:100%; max-width:300px; height:auto; overflow:visible; display:block; margin:0 auto;
+  filter:drop-shadow(0 14px 16px rgba(120,70,45,.20)); }
+
+/* skin */
+.palm,.wrist,.finger,.thumb{ fill:url(#skin); stroke:#b06f4f; stroke-width:1.4; }
+.wrist{ fill:#d99871; }
+
+/* per‑finger + whole‑hand transform pivots */
+.active-hand{ transform-box:fill-box; transform-origin:50% 92%;
+  filter:drop-shadow(0 8px 6px rgba(95,52,30,.22));
+  transition:transform .16s cubic-bezier(.2,.9,.35,1.5); }
+.finger{ transform-box:fill-box; transform-origin:50% 100%;
+  transition:transform .16s ease, fill .16s ease; }
+.f-thumb{ transform-origin:70% 100%; }
+.flash{ opacity:0; }
+.turn-arc{ stroke:var(--green); stroke-width:3; stroke-linecap:round; opacity:0;
+  stroke-dasharray:4 7; transition:opacity .18s; }
+
+/* ---------- kriyā poses (state class lives on .stage) ---------- */
+/* Thattu — palm strikes down onto the base hand */
+.stage.clap .active-hand{ transform:translateY(46px) rotate(-3deg) scale(.99); }
+/* Veechu — hand turns out, palm up */
+.stage.wave .active-hand{ transform:rotate(24deg) translate(20px,-4px); }
+.stage.wave .palm{ fill:url(#skinBase); }
+.stage.wave .turn-arc{ opacity:1; }
+/* Counts — hand lowers toward base, the counted finger taps + lights up */
+.stage.count .active-hand{ transform:translateY(30px); }
+.stage.count-1 .f-little{ fill:url(#skinHot); transform:translateY(9px); }
+.stage.count-2 .f-ring  { fill:url(#skinHot); transform:translateY(9px); }
+.stage.count-3 .f-middle{ fill:url(#skinHot); transform:translateY(9px); }
+/* Rest — relaxed, no contact (chāpu silent beat) */
+.stage.rest .active-hand{ transform:translateY(8px); opacity:.8; }
+.stage.muted .active-hand{ opacity:.45; }
+
+/* contact flash re‑fires each beat via the .hit pulse */
+.stage.hit.contact .flash{ animation:flashPulse .34s ease-out; }
+@keyframes flashPulse{ 0%{opacity:0; transform:scale(.55);} 30%{opacity:1;} 100%{opacity:0; transform:scale(1.15);} }
+.flash{ transform-box:fill-box; transform-origin:50% 50%; }
+
+.hand-caption{ display:flex; justify-content:center; gap:18px; margin-top:2px; }
+.hand-role{ font:600 9px/1 "DM Mono",monospace; letter-spacing:.5px; color:var(--muted); text-transform:uppercase; }
+.hand-role.active{ color:var(--rose); }
+.hand-role.base{ color:var(--green); }
+
+/* ---- count read‑out (never overlapped by the hand) ---- */
+.count-readout{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  padding:14px 10px; border-left:1px solid var(--line);
+}
+.anga-tag{ font:700 10px "DM Mono",monospace; letter-spacing:1.5px; text-transform:uppercase;
+  color:#fff; background:var(--green); padding:4px 12px; border-radius:100px; }
+.gesture-icon{ font-size:40px; line-height:1; margin-top:6px; }
+.gesture-name{ font:600 22px "Playfair Display",serif; margin-top:2px; }
+.gesture-sub{ font:500 11px "DM Mono",monospace; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; min-height:14px; }
+.beat-count{ margin-top:10px; display:flex; align-items:baseline; gap:6px; }
+.beat-count strong{ font:600 62px/1 "Playfair Display",serif; display:inline-block; }
+.stage.hit .beat-count strong{ animation:pop .3s ease; }
+@keyframes pop{ 0%{transform:scale(.7); color:var(--rose);} 100%{transform:scale(1); color:var(--ink);} }
+.beat-count span{ font:12px "DM Mono",monospace; color:var(--muted); }
+
+/* ---- sequence strip with per‑beat mute ---- */
+.sequence-wrap{ overflow-x:auto; padding:6px 2px 4px; }
+.sequence{ display:flex; justify-content:center; min-width:max-content; gap:7px; padding-bottom:4px; }
+.beat{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+.beat .num{
+  width:46px; height:48px; border:1px solid var(--line); background:var(--card); border-radius:9px;
+  color:var(--muted); cursor:pointer; font:600 15px "DM Mono",monospace;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; transition:.16s;
+}
+.beat .num small{ font:7px "Plus Jakarta Sans",sans-serif; text-transform:uppercase; letter-spacing:.4px; opacity:.7; }
+.beat.group-start .num{ border-left:3px solid var(--sun); }
+.beat.accent .num{ color:var(--rose); border-color:#e6b7ac; }
+.beat.active .num{ color:#fff; background:var(--ink); border-color:var(--ink); transform:translateY(-4px); box-shadow:0 8px 12px #1d243024; }
+.beat.muted .num{ opacity:.4; text-decoration:line-through; }
+.mute-btn{ border:0; background:none; cursor:pointer; font-size:13px; line-height:1; padding:2px 4px; border-radius:6px; opacity:.75; transition:.14s; }
+.mute-btn:hover{ opacity:1; background:#0000000a; }
+.beat.muted .mute-btn{ opacity:.9; }
+.seq-hint{ font:10px "DM Mono",monospace; color:#9aa0a6; margin:4px 0 0; }
+.seq-hint .mini-mute{ filter:grayscale(1); }
+
+/* ---- transport / tempo / picker ---- */
+.transport{ display:flex; justify-content:center; align-items:center; gap:16px; margin:16px 0 22px; }
+.play{ border:0; border-radius:100px; color:#fff; background:var(--ink); height:52px; padding:0 26px; cursor:pointer;
+  font:600 13px "Plus Jakarta Sans",sans-serif; display:flex; gap:9px; align-items:center; box-shadow:0 6px 15px #1d243035; }
+.play:hover{ background:#343d4d; } .play-icon{ color:var(--sun); font-size:13px; }
+.bpm-readout{ border-bottom:1px solid var(--ink); display:flex; align-items:center; gap:6px; }
+.bpm-readout input{ border:0; width:52px; background:transparent; text-align:right; outline:0; font:500 21px "DM Mono",monospace; color:var(--ink); }
+.bpm-readout span{ color:var(--muted); font:10px "DM Mono",monospace; }
+.tempo-control{ max-width:460px; margin:0 auto 30px; }
+.tempo-top{ display:flex; justify-content:space-between; align-items:center; color:var(--muted); font:9px "DM Mono",monospace; margin-bottom:7px; }
+input[type=range]{ width:100%; accent-color:var(--rose); cursor:pointer; }
+.tempo-presets{ display:flex; justify-content:center; flex-wrap:wrap; gap:6px; margin-top:12px; }
+.preset{ border:1px solid var(--line); background:var(--card); color:var(--muted); border-radius:100px; padding:5px 13px;
+  font:600 11px "DM Mono",monospace; cursor:pointer; transition:.14s; }
+.preset:hover{ border-color:var(--rose); color:var(--rose); }
+.preset.on{ background:var(--ink); color:#fff; border-color:var(--ink); }
+
+/* ---- beat volume ---- */
+.sound-control{ max-width:460px; margin:0 auto 30px; }
+.vol-row{ display:flex; align-items:center; gap:14px; }
+.vol-row label{ color:var(--rose); letter-spacing:2px; font-size:10px; font-weight:700; white-space:nowrap; }
+
+.tala-picker{ border-top:1px solid var(--line); padding-top:22px; }
+.section-label{ color:var(--muted); margin:0 0 14px; font-size:9px; }
+.tala-grid{ display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+.tala-choice{ min-height:74px; padding:9px 5px; color:var(--ink); background:transparent; border:1px solid var(--line); border-radius:10px;
+  cursor:pointer; font:600 12px "Plus Jakarta Sans",sans-serif; line-height:1.2; transition:.16s; }
+.tala-choice span{ display:block; font:10px "DM Mono",monospace; margin-top:7px; color:var(--muted); }
+.tala-choice:hover{ border-color:var(--green); }
+.tala-choice.selected{ background:var(--green); color:#fff; border-color:var(--green); box-shadow:0 5px 11px #3b897b30; }
+.tala-choice.selected span{ color:#d9f2ec; }
+.hint{ font-size:10px; color:#969ba2; margin:22px 0 0; }
+
+/* ---- responsive ---- */
+@media (max-width:560px){
+  .app-shell{ padding-inline:16px; }
+  .stage{ grid-template-columns:1fr; min-height:auto; gap:2px; }
+  .hands{ max-width:230px; }
+  .count-readout{ border-left:0; border-top:1px solid var(--line); padding-top:14px; }
+  .beat-count strong{ font-size:52px; }
+  .tala-grid{ grid-template-columns:repeat(3,1fr); }
+  .sequence{ justify-content:flex-start; }
+}
