@@ -30,40 +30,56 @@ header{ display:flex; justify-content:space-between; align-items:center; font-si
   filter:drop-shadow(0 14px 16px rgba(120,70,45,.20)); }
 
 /* skin */
-.palm,.wrist,.finger,.thumb{ fill:url(#skin); stroke:#b06f4f; stroke-width:1.4; }
+.palm,.wrist,.finger rect,.thumb{ fill:url(#skin); stroke:#b06f4f; stroke-width:1.4; }
 .wrist{ fill:#d99871; }
+.lap{ fill:#3b897b; opacity:.16; }
+.nail{ fill:#f7ddd0; stroke:#c98d72; stroke-width:1; opacity:0; transition:opacity .1s; }
+.knuckles{ fill:none; stroke:#a8694b; stroke-width:1.4; stroke-linecap:round; opacity:0; transition:opacity .1s; }
 
-/* per‑finger + whole‑hand transform pivots */
-.active-hand{ transform-box:fill-box; transform-origin:50% 92%;
-  filter:drop-shadow(0 8px 6px rgba(95,52,30,.22));
-  transition:transform .16s cubic-bezier(.2,.9,.35,1.5); }
-.finger{ transform-box:fill-box; transform-origin:50% 100%;
-  transition:transform .16s ease, fill .16s ease; }
-.f-thumb{ transform-origin:70% 100%; }
-.flash{ opacity:0; }
-.turn-arc{ stroke:var(--green); stroke-width:3; stroke-linecap:round; opacity:0;
-  stroke-dasharray:4 7; transition:opacity .18s; }
+/* ---------- hand motion ----------
+   The hand's home is DOWN on the lap. Every kriyā is a contact:
+   it lifts at the end of a beat and lands on the next one.
+   --beat (ms) is set from the tempo; --lift-in / --lift-out are how high
+   the hand is at the start / end of the beat (finger counts lift less). */
+.stage{ --beat:600ms; --lift-in:34px; --lift-out:34px; --down:46px; }
+.hand-pos{ transform-box:view-box; transform:translateY(var(--down));
+  filter:drop-shadow(0 8px 6px rgba(95,52,30,.22)); }
+.hand-flip{ transform-box:fill-box; transform-origin:50% 60%;
+  transition:transform calc(var(--beat) * .16) ease-in, filter .1s; }
+.finger{ transform-box:fill-box; transform-origin:50% 100%; }
+.finger rect:first-child{ transition:fill .12s ease; }
 
-/* ---------- kriyā poses (state class lives on .stage) ---------- */
-/* Thattu — palm strikes down onto the base hand */
-.stage.clap .active-hand{ transform:translateY(46px) rotate(-3deg) scale(.99); }
-/* Veechu — hand turns out, palm up */
-.stage.wave .active-hand{ transform:rotate(24deg) translate(20px,-4px); }
-.stage.wave .palm{ fill:url(#skinBase); }
-.stage.wave .turn-arc{ opacity:1; }
-/* Counts — hand lowers toward base, the counted finger taps + lights up */
-.stage.count .active-hand{ transform:translateY(30px); }
-.stage.count-1 .f-little{ fill:url(#skinHot); transform:translateY(9px); }
-.stage.count-2 .f-ring  { fill:url(#skinHot); transform:translateY(9px); }
-.stage.count-3 .f-middle{ fill:url(#skinHot); transform:translateY(9px); }
-/* Rest — relaxed, no contact (chāpu silent beat) */
-.stage.rest .active-hand{ transform:translateY(8px); opacity:.8; }
-.stage.muted .active-hand{ opacity:.45; }
+/* Veechu: the hand turns over (back of the hand faces you) and is put DOWN */
+.stage.back .hand-flip{ transform:scaleX(-1); }
+.stage.back .palm,.stage.back .finger rect:first-child,.stage.back .thumb{ fill:url(#skinBase); }
+.stage.back .nail,.stage.back .knuckles{ opacity:1; }
+
+/* strike: from up, drop onto the lap; "lift" variants rise at the end
+   of the beat ready for the next strike, "hold" variants stay down */
+@keyframes strikeLift{ 0%{transform:translateY(calc(var(--down) - var(--lift-in)));} 16%{transform:translateY(var(--down));}
+  62%{transform:translateY(var(--down));} 100%{transform:translateY(calc(var(--down) - var(--lift-out)));} }
+@keyframes strikeHold{ 0%{transform:translateY(calc(var(--down) - var(--lift-in)));} 16%,100%{transform:translateY(var(--down));} }
+@keyframes restLift{ 0%,62%{transform:translateY(var(--down));} 100%{transform:translateY(calc(var(--down) - var(--lift-out)));} }
+.stage.hit.strike.lift-out .hand-pos{ animation:strikeLift var(--beat) cubic-bezier(.55,0,.75,.6) both; }
+.stage.hit.strike:not(.lift-out) .hand-pos{ animation:strikeHold var(--beat) cubic-bezier(.55,0,.75,.6) both; }
+.stage.hit.rest.lift-out .hand-pos{ animation:restLift var(--beat) ease-in-out both; }
+
+/* Counts: palm stays near the lap, the counted finger folds down to tap */
+@keyframes fingerTap{ 0%{transform:scaleY(1);} 16%,62%{transform:scaleY(.72);} 100%{transform:scaleY(.9);} }
+.stage.count-1 .f-little rect:first-child,
+.stage.count-2 .f-ring rect:first-child,
+.stage.count-3 .f-middle rect:first-child{ fill:url(#skinHot); }
+.stage.hit.count-1 .f-little,
+.stage.hit.count-2 .f-ring,
+.stage.hit.count-3 .f-middle{ animation:fingerTap var(--beat) linear both; }
+
+/* Rest (chāpu silent beat): the hand just stays on the lap */
+.stage.muted .hand-pos{ opacity:.45; }
 
 /* contact flash re‑fires each beat via the .hit pulse */
-.stage.hit.contact .flash{ animation:flashPulse .34s ease-out; }
+.flash{ opacity:0; transform-box:fill-box; transform-origin:50% 50%; }
+.stage.hit.contact .flash{ animation:flashPulse calc(var(--beat) * .55) ease-out calc(var(--beat) * .12); }
 @keyframes flashPulse{ 0%{opacity:0; transform:scale(.55);} 30%{opacity:1;} 100%{opacity:0; transform:scale(1.15);} }
-.flash{ transform-box:fill-box; transform-origin:50% 50%; }
 
 .hand-caption{ display:flex; justify-content:center; gap:18px; margin-top:2px; }
 .hand-role{ font:600 9px/1 "DM Mono",monospace; letter-spacing:.5px; color:var(--muted); text-transform:uppercase; }

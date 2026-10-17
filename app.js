@@ -1,10 +1,10 @@
 /* ---- gesture vocabulary (kriyā) ---- */
 const GEST = {
-  clap: { icon:'👏', name:'Thattu', sub:'palm strikes down', tag:'clap',   pose:'clap contact' },
-  wave: { icon:'👋', name:'Veechu', sub:'palm turns up',     tag:'wave',   pose:'wave' },
-  c1:   { icon:'👆', name:'Count 1', sub:'little finger',     tag:'little', pose:'count count-1 contact' },
-  c2:   { icon:'👆', name:'Count 2', sub:'ring finger',       tag:'ring',   pose:'count count-2 contact' },
-  c3:   { icon:'👆', name:'Count 3', sub:'middle finger',     tag:'middle', pose:'count count-3 contact' },
+  clap: { icon:'👏', name:'Thattu', sub:'palm strikes down', tag:'clap',   pose:'strike contact' },
+  wave: { icon:'👋', name:'Veechu', sub:'hand turns over, back of hand down',     tag:'wave',   pose:'strike contact back' },
+  c1:   { icon:'👆', name:'Count 1', sub:'little finger',     tag:'little', pose:'strike count count-1 contact' },
+  c2:   { icon:'👆', name:'Count 2', sub:'ring finger',       tag:'ring',   pose:'strike count count-2 contact' },
+  c3:   { icon:'👆', name:'Count 3', sub:'middle finger',     tag:'middle', pose:'strike count count-3 contact' },
   rest: { icon:'·',  name:'Rest',    sub:'silent — keep the pulse', tag:'—', pose:'rest' },
 };
 
@@ -78,7 +78,7 @@ const talas = {
 
 const PRESETS = [60,72,80,100,120,160,200];
 
-let selected = 'adi', current = 0, running = false, timer = null;
+let selected = 'adi', current = 0, side = 'palm', running = false, timer = null;
 const $ = s => document.querySelector(s);
 const stage = () => $('.stage');
 
@@ -131,7 +131,7 @@ function renderSequence(){
 }
 
 function selectTala(key){
-  selected = key; current = 0;
+  selected = key; current = 0; side = 'palm';
   const t = talas[key];
   $('#talam-name').textContent = t.name;
   $('#talam-detail').textContent = t.detail;
@@ -153,10 +153,23 @@ function displayBeat(){
   // active beat highlight in the strip
   document.querySelectorAll('.beat').forEach((b,i)=>b.classList.toggle('active', i===current));
 
-  // pose the hands — rebuild the class list, then re‑fire the hit pulse
+  // pose the hand: every kriyā lands on the lap. A rest keeps whichever
+  // side (palm / back) the hand was already on; the hand only lifts at
+  // the end of a beat when the next beat is another strike.
   const st = stage();
-  st.className = 'stage ' + g.pose + (mutedNow ? ' muted' : '');
-  void st.offsetWidth;              // reflow so the flash / pop animations restart
+  const next = t.beats[(current+1) % total];
+  const isStrike = beat.g !== 'rest';
+  if(isStrike) side = beat.g === 'wave' ? 'back' : 'palm';
+  const liftOut = running && next.g !== 'rest';
+  st.className = 'stage ' + g.pose
+    + (!isStrike && side === 'back' ? ' back' : '')
+    + (liftOut ? ' lift-out' : '')
+    + (mutedNow ? ' muted' : '');
+  st.style.setProperty('--beat', (60000/Number($('#bpm').value)) + 'ms');
+  const lift = b => GEST[b.g].pose.includes('count') ? '14px' : '34px';
+  st.style.setProperty('--lift-in', lift(beat));
+  st.style.setProperty('--lift-out', lift(next));
+  void st.offsetWidth;              // reflow so the strike / flash animations restart
   st.classList.add('hit');
 }
 
