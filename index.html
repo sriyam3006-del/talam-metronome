@@ -48,25 +48,29 @@
             </radialGradient>
           </defs>
 
-          <!-- impact flash shown on a clap / count strike -->
+          <!-- the lap / thigh the hand lands on -->
+          <rect class="lap" x="30" y="284" width="240" height="56" rx="26"/>
+
+          <!-- impact flash shown on every contact with the lap -->
           <circle class="flash" cx="150" cy="286" r="62" fill="url(#flash)"/>
 
-          <!-- ACTIVE HAND · right hand, does the kriyā (thattu / veechu / counts) -->
-          <g class="active-hand" id="active-hand">
-            <rect class="wrist" x="112" y="220" width="66" height="70" rx="20"/>
-            <path class="palm" d="M92,150 Q84,150 84,170 L84,206 Q84,236 118,240 L172,240
-                     Q206,236 206,206 L206,166 Q206,150 197,150 Z"/>
-            <!-- fingers: index, middle, ring, little (left→right on a palm-facing right hand) -->
-            <rect class="finger f-index"  x="96"  y="48" width="23" height="106" rx="11"/>
-            <rect class="finger f-middle" x="123" y="34" width="24" height="120" rx="12"/>
-            <rect class="finger f-ring"   x="150" y="50" width="23" height="104" rx="11"/>
-            <rect class="finger f-little" x="177" y="74" width="20" height="82"  rx="10"/>
-            <!-- thumb: a path attached to the palm's lower‑left, pointing down -->
-            <path class="thumb" d="M97,182 Q72,184 62,210 Q56,228 70,239 Q86,248 97,228 Z"/>
+          <!-- ACTIVE HAND · right hand, does the kriyā (thattu / veechu / counts).
+               .hand-pos moves it up and down, .hand-flip turns it palm / back. -->
+          <g class="hand-pos" id="active-hand">
+            <g class="hand-flip">
+              <rect class="wrist" x="112" y="220" width="66" height="70" rx="20"/>
+              <path class="palm" d="M92,150 Q84,150 84,170 L84,206 Q84,236 118,240 L172,240
+                       Q206,236 206,206 L206,166 Q206,150 197,150 Z"/>
+              <!-- fingers: index, middle, ring, little -->
+              <g class="finger f-index"><rect x="96"  y="48" width="23" height="106" rx="11"/><rect class="nail" x="100" y="52" width="15" height="17" rx="6"/></g>
+              <g class="finger f-middle"><rect x="123" y="34" width="24" height="120" rx="12"/><rect class="nail" x="127" y="38" width="16" height="18" rx="6"/></g>
+              <g class="finger f-ring"><rect x="150" y="50" width="23" height="104" rx="11"/><rect class="nail" x="154" y="54" width="15" height="17" rx="6"/></g>
+              <g class="finger f-little"><rect x="177" y="74" width="20" height="82"  rx="10"/><rect class="nail" x="180" y="78" width="14" height="15" rx="5"/></g>
+              <!-- knuckle creases, only seen on the back of the hand -->
+              <path class="knuckles" d="M104,158 q4,-4 8,0 M131,156 q4,-4 8,0 M157,158 q4,-4 8,0 M182,160 q3,-3 6,0"/>
+              <path class="thumb" d="M97,182 Q72,184 62,210 Q56,228 70,239 Q86,248 97,228 Z"/>
+            </g>
           </g>
-
-          <!-- veechu turn arc -->
-          <path class="turn-arc" d="M214,120 A64,64 0 0 1 250,196" fill="none"/>
         </svg>
         <div class="hand-caption">
           <span class="hand-role active">the tāḷa hand</span>
